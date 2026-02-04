@@ -39,5 +39,12 @@ public class AppDbContext : DbContext
             });
         });
 
+        modelBuilder.Entity<Booking>()
+            .Property(b => b.StartDate)
+            .HasColumnType("timestamp with time zone");
+
+        modelBuilder.Entity<Booking>()
+            .Property(b => b.EndDate)
+            .HasColumnType("timestamp with time zone");
     }
 }

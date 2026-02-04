@@ -83,6 +83,13 @@ public class ResourceService : IResourceService
         var resource = await _context.Resources.FindAsync(id)
             ?? throw new NotFoundException("Recurso no encontrado");
 
+        // Verificar si el recurso tiene reservas activas
+        var hasActiveBookings = await _context.Bookings.AnyAsync(b =>
+        b.ResourceId == id && b.Status == "Active");
+
+        if (hasActiveBookings)
+            throw new ConflictException("No se puede eliminar el recurso con reservas activas");
+
         // Eliminar el recurso
         _context.Resources.Remove(resource);
         await _context.SaveChangesAsync();

@@ -27,7 +27,10 @@ public class ResourcesController : ControllerBase
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(CreateResourceDto dto)
-        => Ok(await _service.CreateAsync(dto));
+    {
+        var createdResource = await _service.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = createdResource.Id }, createdResource);
+    }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]

@@ -20,6 +20,10 @@ public class ExceptionMiddleware
         {
             await WriteError(context, HttpStatusCode.NotFound, ex.Message);
         }
+        catch (BadRequestException ex)
+        {
+            await WriteError(context, HttpStatusCode.BadRequest, ex.Message);
+        }
         catch (ConflictException ex)
         {
             await WriteError(context, HttpStatusCode.Conflict, ex.Message);
@@ -27,6 +31,10 @@ public class ExceptionMiddleware
         catch (UnauthorizedException ex)
         {
             await WriteError(context, HttpStatusCode.Unauthorized, ex.Message);
+        }
+        catch (ForbiddenException ex)
+        {
+            await WriteError(context, HttpStatusCode.Forbidden, ex.Message);
         }
         catch (Exception)
         {
