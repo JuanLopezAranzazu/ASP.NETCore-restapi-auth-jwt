@@ -55,14 +55,14 @@ public class AuthService : IAuthService
         return await GenerateAuthResponse(user);
     }
 
-    public async Task<AuthResponseDto> RefreshAsync(string refreshToken)
+    public async Task<AuthResponseDto> RefreshAsync(RefreshTokenDto dto)
     {
         // Buscar el token de refresco en la base de datos
         var token = await _context.RefreshTokens
         .Include(t => t.User)
         .ThenInclude(u => u.Role)
         .FirstOrDefaultAsync(t =>
-            t.Token == refreshToken &&
+            t.Token == dto.RefreshToken &&
             !t.IsRevoked &&
             t.ExpiresAt > DateTime.UtcNow
         );

@@ -33,6 +33,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -51,7 +52,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
     await RoleSeeder.SeedAsync(context);
+    await AdminSeeder.SeedAsync(context, config);
 }
 
 

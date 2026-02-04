@@ -16,6 +16,10 @@ public class ExceptionMiddleware
         {
             await _next(context);
         }
+        catch (NotFoundException ex)
+        {
+            await WriteError(context, HttpStatusCode.NotFound, ex.Message);
+        }
         catch (ConflictException ex)
         {
             await WriteError(context, HttpStatusCode.Conflict, ex.Message);
