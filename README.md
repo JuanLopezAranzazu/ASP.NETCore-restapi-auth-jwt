@@ -9,3 +9,12 @@ Para ejecutar el proyecto, asegúrate de tener instalado .NET SDK en tu máquina
 ```bash
 dotnet run
 ```
+
+## Migraciones de la Base de Datos
+
+Para aplicar las migraciones y actualizar la base de datos, utiliza el siguiente comando:
+
+```bash
+dotnet ef database update
+```
+

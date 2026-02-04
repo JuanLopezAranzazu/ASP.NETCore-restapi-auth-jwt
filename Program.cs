@@ -1,11 +1,42 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 using BookingApi.Data;
+using BookingApi.Services.Implementations;
+using BookingApi.Services.Interfaces;
+using BookingApi.Data.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+// Configurar autenticación JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+            )
+        };
+    });
+
 // Registrar servicios en el contenedor
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -14,6 +45,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 var app = builder.Build();
+
+
+// Sembrar roles en la base de datos
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await RoleSeeder.SeedAsync(context);
+}
+
 
 
 if (app.Environment.IsDevelopment())
@@ -39,7 +79,12 @@ using (var scope = app.Services.CreateScope())
 
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionMiddleware>();
+
+
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

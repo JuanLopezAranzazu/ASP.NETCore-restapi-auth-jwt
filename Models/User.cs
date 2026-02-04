@@ -12,4 +12,6 @@ public class User
 
 
     public List<Booking> Bookings { get; set; } = new();
+
+    public List<RefreshToken> RefreshTokens { get; set; } = new();
 }
